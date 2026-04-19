@@ -10,7 +10,6 @@ public class AuthService {
     private User currentUser;
 
     public AuthService() {
-        // Тестовые пользователи
         users.put("admin", new User("admin", hashPassword("admin"), Role.ADMIN));
         users.put("teacher", new User("teacher", hashPassword("teacher"), Role.TEACHER));
         users.put("student", new User("student", hashPassword("student"), Role.STUDENT));

@@ -111,8 +111,6 @@ public class Main extends JFrame {
         buttonPanel.add(btn);
     }
 
-    // === СТУДЕНТЫ ===
-
     private void addStudent() {
         Student student = showStudentDialog(null);
         if (student != null && studentRepository.addStudent(student)) {
@@ -246,8 +244,6 @@ public class Main extends JFrame {
         return result[0];
     }
 
-    // === КУРСЫ ===
-
     private void addCourse() {
         Course course = showCourseDialog(null);
         if (course != null && courseRepository.addCourse(course)) {
@@ -379,8 +375,6 @@ public class Main extends JFrame {
         return result[0];
     }
 
-    // === ENROLLMENT ===
-
     private void enrollStudent() {
         List<Student> students = studentRepository.getAllStudents();
         List<Course> courses = courseRepository.getAllCourses();
@@ -456,8 +450,6 @@ public class Main extends JFrame {
             JOptionPane.showMessageDialog(this, "Invalid ID!");
         }
     }
-
-    // === CSV ===
 
     private void exportToCSV() {
         List<Student> students = studentRepository.getAllStudents();
