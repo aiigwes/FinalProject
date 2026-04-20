@@ -10,9 +10,17 @@ public class AuthService {
     private User currentUser;
 
     public AuthService() {
-        users.put("admin", new User("admin", hashPassword("admin"), Role.ADMIN));
-        users.put("teacher", new User("teacher", hashPassword("teacher"), Role.TEACHER));
-        users.put("student", new User("student", hashPassword("student"), Role.STUDENT));
+        addUser("teacher", "teacher", Role.TEACHER);
+        addUser("professor", "professor", Role.TEACHER);
+
+        addUser("student", "student", Role.STUDENT);
+        addUser("alice", "alice", Role.STUDENT);
+        addUser("bob", "bob", Role.STUDENT);
+        addUser("charlie", "charlie", Role.STUDENT);
+    }
+
+    private void addUser(String username, String password, Role role) {
+        users.put(username, new User(username, hashPassword(password), role));
     }
 
     private String hashPassword(String password) {
@@ -40,10 +48,6 @@ public class AuthService {
 
     public User getCurrentUser() {
         return currentUser;
-    }
-
-    public boolean isAdmin() {
-        return currentUser != null && currentUser.getRole() == Role.ADMIN;
     }
 
     public boolean isTeacher() {

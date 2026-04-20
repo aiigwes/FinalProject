@@ -5,6 +5,7 @@ import org.example.repository.*;
 import org.example.service.AuthService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.*;
 import java.util.List;
@@ -17,6 +18,14 @@ public class Main extends JFrame {
 
     private JPanel buttonPanel;
 
+    // Color palette (olive tones)
+    private final Color BG_COLOR = new Color(242, 255, 210);
+    private final Color BUTTON_COLOR = new Color(85, 145, 34, 255);
+    private final Color BUTTON_HOVER = new Color(87, 120, 48);
+    private final Color TEXT_COLOR = new Color(108, 151, 65);
+    private final Color HEADER_COLOR = new Color(70, 115, 15, 255);
+    private final Color STATUS_COLOR = new Color(168, 232, 127);
+
     public Main() {
         if (!showLoginDialog()) {
             System.exit(0);
@@ -24,22 +33,104 @@ public class Main extends JFrame {
 
         setTitle("Student Enrollment System - " + authService.getCurrentUser().getRole());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1000, 700);
         setLocationRelativeTo(null);
+
+        setUIFont();
         initUI();
+    }
+
+    private void setUIFont() {
+        Font buttonFont = new Font("Segoe UI", Font.BOLD, 18);
+        Font regularFont = new Font("Segoe UI", Font.PLAIN, 15);
+
+        UIManager.put("Button.font", buttonFont);
+        UIManager.put("Label.font", regularFont);
+        UIManager.put("Table.font", regularFont);
+        UIManager.put("TableHeader.font", new Font("Segoe UI", Font.BOLD, 16));
+        UIManager.put("TextField.font", regularFont);
+        UIManager.put("TextArea.font", regularFont);
+        UIManager.put("OptionPane.messageFont", regularFont);
+        UIManager.put("OptionPane.buttonFont", buttonFont);
     }
 
     private boolean showLoginDialog() {
         JDialog loginDialog = new JDialog(this, "Login", true);
-        loginDialog.setSize(350, 180);
+        loginDialog.setSize(450, 300);
         loginDialog.setLocationRelativeTo(null);
-        loginDialog.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        loginDialog.setBackground(BG_COLOR);
 
+        JPanel loginPanel = new JPanel(new GridBagLayout());
+        loginPanel.setBackground(BG_COLOR);
+        loginPanel.setBorder(new EmptyBorder(25, 25, 25, 25));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(12, 12, 12, 12);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel titleLabel = new JLabel("WELCOME BACK");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        titleLabel.setForeground(HEADER_COLOR);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        loginPanel.add(titleLabel, gbc);
+
+        gbc.gridwidth = 1;
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        JLabel userLabel = new JLabel("Username:");
+        userLabel.setForeground(TEXT_COLOR);
+        userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        loginPanel.add(userLabel, gbc);
+
+        gbc.gridx = 1;
         JTextField usernameField = new JTextField(15);
+        usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        usernameField.setBackground(Color.WHITE);
+        usernameField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 210, 190)),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        loginPanel.add(usernameField, gbc);
+
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        JLabel passLabel = new JLabel("Password:");
+        passLabel.setForeground(TEXT_COLOR);
+        passLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        loginPanel.add(passLabel, gbc);
+
+        gbc.gridx = 1;
         JPasswordField passwordField = new JPasswordField(15);
-        JButton loginBtn = new JButton("Login");
+        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        passwordField.setBackground(Color.WHITE);
+        passwordField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 210, 190)),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        loginPanel.add(passwordField, gbc);
+
+        gbc.gridy = 3;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        JButton loginBtn = new JButton("LOGIN");
+        loginBtn.setBackground(BUTTON_COLOR);
+        loginBtn.setForeground(Color.WHITE);
+        loginBtn.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        loginBtn.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
+        loginBtn.setFocusPainted(false);
+        loginBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        loginBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                loginBtn.setBackground(BUTTON_HOVER);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                loginBtn.setBackground(BUTTON_COLOR);
+            }
+        });
 
         final boolean[] success = {false};
 
@@ -50,63 +141,134 @@ public class Main extends JFrame {
                 success[0] = true;
                 loginDialog.dispose();
             } else {
-                JOptionPane.showMessageDialog(loginDialog, "Invalid credentials!\nTry: admin/admin, teacher/teacher, student/student");
+                JOptionPane.showMessageDialog(loginDialog,
+                        "Invalid credentials!\n\nAvailable:\nTeacher: teacher/teacher\nStudent: student/student\n\nOther users: professor, alice, bob, charlie\n(password = username)",
+                        "Login Failed",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        gbc.gridx = 0; gbc.gridy = 0; loginDialog.add(new JLabel("Username:"), gbc);
-        gbc.gridx = 1; loginDialog.add(usernameField, gbc);
-        gbc.gridx = 0; gbc.gridy = 1; loginDialog.add(new JLabel("Password:"), gbc);
-        gbc.gridx = 1; loginDialog.add(passwordField, gbc);
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; loginDialog.add(loginBtn, gbc);
+        loginPanel.add(loginBtn, gbc);
 
+        gbc.gridy = 4;
+        JLabel infoLabel = new JLabel("Teacher: teacher/teacher | Student: student/student");
+        infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        infoLabel.setForeground(new Color(150, 160, 140));
+        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        loginPanel.add(infoLabel, gbc);
+
+        loginDialog.add(loginPanel);
         loginDialog.setVisible(true);
         return success[0];
     }
 
     private void initUI() {
-        setLayout(new BorderLayout());
+        JPanel contentPane = new JPanel(new BorderLayout());
+        contentPane.setBackground(BG_COLOR);
+        setContentPane(contentPane);
 
-        JLabel titleLabel = new JLabel("STUDENT COURSE ENROLLMENT SYSTEM", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        add(titleLabel, BorderLayout.NORTH);
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(HEADER_COLOR);
+        headerPanel.setBorder(new EmptyBorder(20, 25, 20, 25));
 
-        buttonPanel = new JPanel(new GridLayout(0, 2, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JLabel titleLabel = new JLabel("STUDENT COURSE ENROLLMENT SYSTEM");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
 
-        if (authService.isAdmin() || authService.isTeacher()) {
-            addButton("Add Student", e -> addStudent());
-            addButton("Show Students", e -> showStudents());
-            addButton("Update Student", e -> updateStudent());
-            addButton("Delete Student", e -> deleteStudent());
-            addButton("Add Course", e -> addCourse());
-            addButton("Show Courses", e -> showCourses());
-            addButton("Update Course", e -> updateCourse());
-            addButton("Delete Course", e -> deleteCourse());
-            addButton("Enroll Student", e -> enrollStudent());
-            addButton("Show Enrollments", e -> showEnrollments());
-            addButton("Change Enrollment", e -> changeEnrollment());
-            addButton("Drop Enrollment", e -> dropEnrollment());
-            addButton("Export Students CSV", e -> exportToCSV());
-            addButton("Import Students CSV", e -> importFromCSV());
+        contentPane.add(headerPanel, BorderLayout.NORTH);
+
+        buttonPanel = new JPanel(new GridLayout(0, 2, 20, 20));
+        buttonPanel.setBackground(BG_COLOR);
+        buttonPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
+
+        if (authService.isTeacher()) {
+            addMenuButton(" ADD STUDENT", e -> addStudent());
+            addMenuButton(" ALL STUDENTS", e -> showStudents());
+            addMenuButton(" UPDATE STUDENT", e -> updateStudent());
+            addMenuButton(" DELETE STUDENT", e -> deleteStudent());
+
+            addMenuButton(" ADD COURSE", e -> addCourse());
+            addMenuButton(" ALL COURSES", e -> showCourses());
+            addMenuButton(" UPDATE COURSE", e -> updateCourse());
+            addMenuButton(" DELETE COURSE", e -> deleteCourse());
+
+            addMenuButton(" ENROLL STUDENT", e -> enrollStudent());
+            addMenuButton(" ALL ENROLLMENTS", e -> showEnrollments());
+            addMenuButton(" CHANGE ENROLLMENT", e -> changeEnrollment());
+            addMenuButton(" DROP ENROLLMENT", e -> dropEnrollment());
+
+            addMenuButton(" EXPORT CSV", e -> exportToCSV());
+            addMenuButton(" IMPORT CSV", e -> importFromCSV());
         } else if (authService.isStudent()) {
-            addButton("My Info", e -> showMyInfo());
-            addButton("Available Courses", e -> showAvailableCourses());
-            addButton("My Enrollments", e -> showEnrollments());
+            // Student - limited access
+            addStudentButton(" AVAILABLE COURSES", e -> showAvailableCourses());
+            addStudentButton(" MY ENROLLMENTS", e -> showMyEnrollments());
         }
-        addButton("Logout", e -> logout());
 
-        add(new JScrollPane(buttonPanel), BorderLayout.CENTER);
+        addMenuButton(" LOGOUT", e -> logout());
 
-        JLabel statusBar = new JLabel("Logged in as: " + authService.getCurrentUser().getUsername() +
-                " | Role: " + authService.getCurrentUser().getRole());
-        statusBar.setBorder(BorderFactory.createEtchedBorder());
-        add(statusBar, BorderLayout.SOUTH);
+        JScrollPane scrollPane = new JScrollPane(buttonPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(BG_COLOR);
+        contentPane.add(scrollPane, BorderLayout.CENTER);
+
+        JPanel statusPanel = new JPanel(new BorderLayout());
+        statusPanel.setBackground(STATUS_COLOR);
+        statusPanel.setBorder(new EmptyBorder(12, 20, 12, 20));
+
+        JLabel statusBar = new JLabel(" Logged in as: " + authService.getCurrentUser().getUsername() +
+                " | Role: " + (authService.isTeacher() ? "Teacher" : "Student"));
+        statusBar.setForeground(TEXT_COLOR);
+        statusBar.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        statusPanel.add(statusBar, BorderLayout.WEST);
+
+        contentPane.add(statusPanel, BorderLayout.SOUTH);
     }
 
-    private void addButton(String text, java.awt.event.ActionListener listener) {
+    private void addMenuButton(String text, java.awt.event.ActionListener listener) {
         JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        btn.setBackground(BUTTON_COLOR);
+        btn.setForeground(Color.WHITE);
+        btn.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(BUTTON_HOVER);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(BUTTON_COLOR);
+            }
+        });
+
+        btn.addActionListener(listener);
+        buttonPanel.add(btn);
+    }
+
+    private void addStudentButton(String text, java.awt.event.ActionListener listener) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        btn.setBackground(new Color(100, 130, 110));
+        btn.setForeground(Color.WHITE);
+        btn.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setHorizontalAlignment(SwingConstants.CENTER);
+
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(80, 110, 90));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(100, 130, 110));
+            }
+        });
+
         btn.addActionListener(listener);
         buttonPanel.add(btn);
     }
@@ -114,14 +276,14 @@ public class Main extends JFrame {
     private void addStudent() {
         Student student = showStudentDialog(null);
         if (student != null && studentRepository.addStudent(student)) {
-            JOptionPane.showMessageDialog(this, "Student added!");
+            showSuccess("Student added successfully!");
         }
     }
 
     private void showStudents() {
         List<Student> students = studentRepository.getAllStudents();
         if (students.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No students found.");
+            showWarning("No students found.");
             return;
         }
 
@@ -141,15 +303,15 @@ public class Main extends JFrame {
             long id = Long.parseLong(idStr);
             Student student = studentRepository.getStudentById(id);
             if (student == null) {
-                JOptionPane.showMessageDialog(this, "Student not found!");
+                showWarning("Student not found!");
                 return;
             }
             Student updated = showStudentDialog(student);
             if (updated != null && studentRepository.updateStudent(updated)) {
-                JOptionPane.showMessageDialog(this, "Student updated!");
+                showSuccess("Student updated successfully!");
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid ID!");
+            showError("Invalid ID!");
         }
     }
 
@@ -161,24 +323,29 @@ public class Main extends JFrame {
             long id = Long.parseLong(idStr);
             int confirm = JOptionPane.showConfirmDialog(this, "Delete student?", "Confirm", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION && studentRepository.deleteStudent(id)) {
-                JOptionPane.showMessageDialog(this, "Student deleted!");
+                showSuccess("Student deleted!");
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid ID!");
+            showError("Invalid ID!");
         }
     }
 
     private Student showStudentDialog(Student existing) {
         JDialog dialog = new JDialog(this, existing == null ? "Add Student" : "Edit Student", true);
-        dialog.setLayout(new GridBagLayout());
+        dialog.setBackground(BG_COLOR);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(BG_COLOR);
+        panel.setBorder(new EmptyBorder(25, 25, 25, 25));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JTextField firstNameField = new JTextField(15);
-        JTextField lastNameField = new JTextField(15);
-        JTextField emailField = new JTextField(15);
-        JTextField scoreField = new JTextField(5);
+        JTextField firstNameField = createStyledTextField();
+        JTextField lastNameField = createStyledTextField();
+        JTextField emailField = createStyledTextField();
+        JTextField scoreField = createStyledTextField();
 
         if (existing != null) {
             firstNameField.setText(existing.getFirstName());
@@ -189,18 +356,20 @@ public class Main extends JFrame {
 
         final Student[] result = {null};
 
-        gbc.gridx = 0; gbc.gridy = 0; dialog.add(new JLabel("First name:"), gbc);
-        gbc.gridx = 1; dialog.add(firstNameField, gbc);
-        gbc.gridx = 0; gbc.gridy = 1; dialog.add(new JLabel("Last name:"), gbc);
-        gbc.gridx = 1; dialog.add(lastNameField, gbc);
-        gbc.gridx = 0; gbc.gridy = 2; dialog.add(new JLabel("Email:"), gbc);
-        gbc.gridx = 1; dialog.add(emailField, gbc);
-        gbc.gridx = 0; gbc.gridy = 3; dialog.add(new JLabel("Score (0-100):"), gbc);
-        gbc.gridx = 1; dialog.add(scoreField, gbc);
+        gbc.gridx = 0; gbc.gridy = 0; panel.add(new JLabel("First name:"), gbc);
+        gbc.gridx = 1; panel.add(firstNameField, gbc);
+        gbc.gridx = 0; gbc.gridy = 1; panel.add(new JLabel("Last name:"), gbc);
+        gbc.gridx = 1; panel.add(lastNameField, gbc);
+        gbc.gridx = 0; gbc.gridy = 2; panel.add(new JLabel("Email:"), gbc);
+        gbc.gridx = 1; panel.add(emailField, gbc);
+        gbc.gridx = 0; gbc.gridy = 3; panel.add(new JLabel("Score (0-100):"), gbc);
+        gbc.gridx = 1; panel.add(scoreField, gbc);
 
-        JPanel buttonPanel = new JPanel();
-        JButton saveBtn = new JButton("Save");
-        JButton cancelBtn = new JButton("Cancel");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        buttonPanel.setBackground(BG_COLOR);
+
+        JButton saveBtn = createStyledButton("Save");
+        JButton cancelBtn = createStyledButton("Cancel");
 
         saveBtn.addActionListener(e -> {
             try {
@@ -225,7 +394,7 @@ public class Main extends JFrame {
                 }
                 dialog.dispose();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, ex.getMessage());
+                showErrorDialog(dialog, ex.getMessage());
             }
         });
 
@@ -235,8 +404,9 @@ public class Main extends JFrame {
         buttonPanel.add(cancelBtn);
 
         gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
-        dialog.add(buttonPanel, gbc);
+        panel.add(buttonPanel, gbc);
 
+        dialog.add(panel);
         dialog.pack();
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
@@ -247,14 +417,14 @@ public class Main extends JFrame {
     private void addCourse() {
         Course course = showCourseDialog(null);
         if (course != null && courseRepository.addCourse(course)) {
-            JOptionPane.showMessageDialog(this, "Course added!");
+            showSuccess("Course added successfully!");
         }
     }
 
     private void showCourses() {
         List<Course> courses = courseRepository.getAllCourses();
         if (courses.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No courses found.");
+            showWarning("No courses found.");
             return;
         }
 
@@ -274,48 +444,48 @@ public class Main extends JFrame {
             long id = Long.parseLong(idStr);
             Course course = courseRepository.getCourseById(id);
             if (course == null) {
-                JOptionPane.showMessageDialog(this, "Course not found!");
+                showWarning("Course not found!");
                 return;
             }
             Course updated = showCourseDialog(course);
             if (updated != null && courseRepository.updateCourse(updated)) {
-                JOptionPane.showMessageDialog(this, "Course updated!");
+                showSuccess("Course updated successfully!");
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid ID!");
+            showError("Invalid ID!");
         }
     }
 
     private void deleteCourse() {
-        if (!authService.isAdmin()) {
-            JOptionPane.showMessageDialog(this, "Only ADMIN can delete courses!");
-            return;
-        }
-
         String idStr = JOptionPane.showInputDialog(this, "Enter course ID:");
         if (idStr == null) return;
 
         try {
             long id = Long.parseLong(idStr);
-            int confirm = JOptionPane.showConfirmDialog(this, "Delete course?", "Confirm", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(this, "Delete course? All enrollments will be deleted!", "Confirm", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION && courseRepository.deleteCourse(id)) {
-                JOptionPane.showMessageDialog(this, "Course deleted!");
+                showSuccess("Course deleted!");
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid ID!");
+            showError("Invalid ID!");
         }
     }
 
     private Course showCourseDialog(Course existing) {
         JDialog dialog = new JDialog(this, existing == null ? "Add Course" : "Edit Course", true);
-        dialog.setLayout(new GridBagLayout());
+        dialog.setBackground(BG_COLOR);
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(BG_COLOR);
+        panel.setBorder(new EmptyBorder(25, 25, 25, 25));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JTextField nameField = new JTextField(15);
-        JTextField instructorField = new JTextField(15);
-        JTextField creditsField = new JTextField(5);
+        JTextField nameField = createStyledTextField();
+        JTextField instructorField = createStyledTextField();
+        JTextField creditsField = createStyledTextField();
 
         if (existing != null) {
             nameField.setText(existing.getCourseName());
@@ -325,16 +495,18 @@ public class Main extends JFrame {
 
         final Course[] result = {null};
 
-        gbc.gridx = 0; gbc.gridy = 0; dialog.add(new JLabel("Course name:"), gbc);
-        gbc.gridx = 1; dialog.add(nameField, gbc);
-        gbc.gridx = 0; gbc.gridy = 1; dialog.add(new JLabel("Instructor:"), gbc);
-        gbc.gridx = 1; dialog.add(instructorField, gbc);
-        gbc.gridx = 0; gbc.gridy = 2; dialog.add(new JLabel("Credits (1-6):"), gbc);
-        gbc.gridx = 1; dialog.add(creditsField, gbc);
+        gbc.gridx = 0; gbc.gridy = 0; panel.add(new JLabel("Course name:"), gbc);
+        gbc.gridx = 1; panel.add(nameField, gbc);
+        gbc.gridx = 0; gbc.gridy = 1; panel.add(new JLabel("Instructor:"), gbc);
+        gbc.gridx = 1; panel.add(instructorField, gbc);
+        gbc.gridx = 0; gbc.gridy = 2; panel.add(new JLabel("Credits (1-6):"), gbc);
+        gbc.gridx = 1; panel.add(creditsField, gbc);
 
-        JPanel buttonPanel = new JPanel();
-        JButton saveBtn = new JButton("Save");
-        JButton cancelBtn = new JButton("Cancel");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        buttonPanel.setBackground(BG_COLOR);
+
+        JButton saveBtn = createStyledButton("Save");
+        JButton cancelBtn = createStyledButton("Cancel");
 
         saveBtn.addActionListener(e -> {
             try {
@@ -356,7 +528,7 @@ public class Main extends JFrame {
                 }
                 dialog.dispose();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, ex.getMessage());
+                showErrorDialog(dialog, ex.getMessage());
             }
         });
 
@@ -366,8 +538,9 @@ public class Main extends JFrame {
         buttonPanel.add(cancelBtn);
 
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
-        dialog.add(buttonPanel, gbc);
+        panel.add(buttonPanel, gbc);
 
+        dialog.add(panel);
         dialog.pack();
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
@@ -380,23 +553,25 @@ public class Main extends JFrame {
         List<Course> courses = courseRepository.getAllCourses();
 
         if (students.isEmpty() || courses.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Need both students and courses!");
+            showWarning("Need both students and courses!");
             return;
         }
 
         String[] studentNames = students.stream().map(s -> s.getId() + " - " + s.getFirstName() + " " + s.getLastName()).toArray(String[]::new);
         String[] courseNames = courses.stream().map(c -> c.getId() + " - " + c.getCourseName()).toArray(String[]::new);
 
-        String studentChoice = (String) JOptionPane.showInputDialog(this, "Select student:", "Enroll", JOptionPane.QUESTION_MESSAGE, null, studentNames, studentNames[0]);
-        String courseChoice = (String) JOptionPane.showInputDialog(this, "Select course:", "Enroll", JOptionPane.QUESTION_MESSAGE, null, courseNames, courseNames[0]);
+        String studentChoice = (String) JOptionPane.showInputDialog(this, "Select student:", "Enroll",
+                JOptionPane.QUESTION_MESSAGE, null, studentNames, studentNames[0]);
+        String courseChoice = (String) JOptionPane.showInputDialog(this, "Select course:", "Enroll",
+                JOptionPane.QUESTION_MESSAGE, null, courseNames, courseNames[0]);
 
         if (studentChoice != null && courseChoice != null) {
             long sId = Long.parseLong(studentChoice.split(" - ")[0]);
             long cId = Long.parseLong(courseChoice.split(" - ")[0]);
             if (enrollmentRepository.registerStudentToCourse(sId, cId)) {
-                JOptionPane.showMessageDialog(this, "Student enrolled!");
+                showSuccess("Student enrolled successfully!");
             } else {
-                JOptionPane.showMessageDialog(this, "Enrollment failed!");
+                showError("Enrollment failed!");
             }
         }
     }
@@ -404,16 +579,25 @@ public class Main extends JFrame {
     private void showEnrollments() {
         List<String> enrollments = enrollmentRepository.getAllEnrollments();
         if (enrollments.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No enrollments found.");
+            showWarning("No enrollments found.");
             return;
         }
 
-        JTextArea textArea = new JTextArea(20, 50);
+        JTextArea textArea = new JTextArea(20, 60);
+        textArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        textArea.setBackground(BG_COLOR);
+        textArea.setForeground(TEXT_COLOR);
         for (String e : enrollments) {
             textArea.append(e + "\n");
         }
         textArea.setEditable(false);
-        JOptionPane.showMessageDialog(this, new JScrollPane(textArea), "Enrollments", JOptionPane.INFORMATION_MESSAGE);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.getViewport().setBackground(BG_COLOR);
+        JOptionPane.showMessageDialog(this, scrollPane, "Enrollments", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showMyEnrollments() {
+        showEnrollments();
     }
 
     private void changeEnrollment() {
@@ -426,13 +610,13 @@ public class Main extends JFrame {
             if (newCourseIdStr != null) {
                 long newCourseId = Long.parseLong(newCourseIdStr);
                 if (enrollmentRepository.updateEnrollment(enrollmentId, newCourseId)) {
-                    JOptionPane.showMessageDialog(this, "Enrollment updated!");
+                    showSuccess("Enrollment updated!");
                 } else {
-                    JOptionPane.showMessageDialog(this, "Update failed!");
+                    showError("Update failed!");
                 }
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid ID!");
+            showError("Invalid ID!");
         }
     }
 
@@ -444,10 +628,10 @@ public class Main extends JFrame {
             long id = Long.parseLong(idStr);
             int confirm = JOptionPane.showConfirmDialog(this, "Drop enrollment?", "Confirm", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION && enrollmentRepository.dropEnrollment(id)) {
-                JOptionPane.showMessageDialog(this, "Enrollment dropped!");
+                showSuccess("Enrollment dropped!");
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid ID!");
+            showError("Invalid ID!");
         }
     }
 
@@ -460,9 +644,9 @@ public class Main extends JFrame {
                 writer.write(s.getFirstName() + "," + s.getLastName() + "," + s.getEmail() + "," + s.getScore());
                 writer.newLine();
             }
-            JOptionPane.showMessageDialog(this, "Exported to students_export.csv");
+            showSuccess("Exported to students_export.csv");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Export failed: " + e.getMessage());
+            showError("Export failed: " + e.getMessage());
         }
     }
 
@@ -490,33 +674,104 @@ public class Main extends JFrame {
                     } catch (NumberFormatException ignored) {}
                 }
             }
-            JOptionPane.showMessageDialog(this, "Import completed! Added: " + added + " students.");
+            showSuccess("Import completed! Added: " + added + " students.");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Import failed: " + e.getMessage());
+            showError("Import failed: " + e.getMessage());
         }
     }
 
     private void showMyInfo() {
-        JOptionPane.showMessageDialog(this, "Student info - needs linking with user account");
+        JOptionPane.showMessageDialog(this,
+                "Student: " + authService.getCurrentUser().getUsername() + "\n" +
+                        "Role: Student\n" +
+                        "Link your account with student record to see more details",
+                "My Info",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void showAvailableCourses() {
         showCourses();
     }
 
+    private JTextField createStyledTextField() {
+        JTextField field = new JTextField(20);
+        field.setBackground(Color.WHITE);
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 210, 190)),
+                BorderFactory.createEmptyBorder(10, 12, 10, 12)
+        ));
+        return field;
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setBackground(BUTTON_COLOR);
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(BUTTON_HOVER);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(BUTTON_COLOR);
+            }
+        });
+
+        return btn;
+    }
+
     private void showTableDialog(String title, DefaultTableModel model) {
         JDialog dialog = new JDialog(this, title, true);
+        dialog.setBackground(BG_COLOR);
+
         JTable table = new JTable(model);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setRowHeight(30);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 15));
+        table.getTableHeader().setBackground(HEADER_COLOR);
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setBackground(BG_COLOR);
+        table.setForeground(TEXT_COLOR);
+        table.setSelectionBackground(new Color(200, 215, 180));
+
         JScrollPane scrollPane = new JScrollPane(table);
-        JButton closeBtn = new JButton("Close");
+        scrollPane.getViewport().setBackground(BG_COLOR);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 210, 190)));
+
+        JButton closeBtn = createStyledButton("Close");
         closeBtn.addActionListener(e -> dialog.dispose());
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(BG_COLOR);
+        buttonPanel.add(closeBtn);
 
         dialog.setLayout(new BorderLayout());
         dialog.add(scrollPane, BorderLayout.CENTER);
-        dialog.add(closeBtn, BorderLayout.SOUTH);
-        dialog.setSize(600, 400);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        dialog.setSize(800, 500);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
+    }
+
+    private void showSuccess(String message) {
+        JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void showWarning(String message) {
+        JOptionPane.showMessageDialog(this, message, "Warning", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private void showErrorDialog(Component parent, String message) {
+        JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     private void logout() {
@@ -528,6 +783,11 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         SwingUtilities.invokeLater(() -> new Main().setVisible(true));
     }
 }
