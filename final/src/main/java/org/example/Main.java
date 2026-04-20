@@ -18,7 +18,6 @@ public class Main extends JFrame {
 
     private JPanel buttonPanel;
 
-    // Color palette (olive tones)
     private final Color BG_COLOR = new Color(242, 255, 210);
     private final Color BUTTON_COLOR = new Color(85, 145, 34, 255);
     private final Color BUTTON_HOVER = new Color(87, 120, 48);
@@ -201,8 +200,8 @@ public class Main extends JFrame {
 
             addMenuButton(" EXPORT CSV", e -> exportToCSV());
             addMenuButton(" IMPORT CSV", e -> importFromCSV());
+
         } else if (authService.isStudent()) {
-            // Student - limited access
             addStudentButton(" AVAILABLE COURSES", e -> showAvailableCourses());
             addStudentButton(" MY ENROLLMENTS", e -> showMyEnrollments());
         }
@@ -678,15 +677,6 @@ public class Main extends JFrame {
         } catch (IOException e) {
             showError("Import failed: " + e.getMessage());
         }
-    }
-
-    private void showMyInfo() {
-        JOptionPane.showMessageDialog(this,
-                "Student: " + authService.getCurrentUser().getUsername() + "\n" +
-                        "Role: Student\n" +
-                        "Link your account with student record to see more details",
-                "My Info",
-                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void showAvailableCourses() {
