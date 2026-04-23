@@ -18,12 +18,12 @@ public class Main extends JFrame {
 
     private JPanel buttonPanel;
 
-    private final Color BG_COLOR = new Color(242, 255, 210);
-    private final Color BUTTON_COLOR = new Color(85, 145, 34, 255);
-    private final Color BUTTON_HOVER = new Color(87, 120, 48);
-    private final Color TEXT_COLOR = new Color(108, 151, 65);
-    private final Color HEADER_COLOR = new Color(70, 115, 15, 255);
-    private final Color STATUS_COLOR = new Color(168, 232, 127);
+    private final Color BG_COLOR = new Color(255, 241, 224, 255);
+    private final Color BUTTON_COLOR = new Color(89, 153, 61, 255);
+    private final Color BUTTON_HOVER = new Color(144, 197, 70);
+    private final Color TEXT_COLOR = new Color(255, 100, 151);
+    private final Color HEADER_COLOR = new Color(89, 153, 61, 255);
+    private final Color STATUS_COLOR = new Color(178, 255, 134);
 
     public Main() {
         if (!showLoginDialog()) {
@@ -53,9 +53,153 @@ public class Main extends JFrame {
         UIManager.put("OptionPane.buttonFont", buttonFont);
     }
 
+    private boolean showRegisterDialog() {
+        JDialog registerDialog = new JDialog(this, "Register", true);
+        registerDialog.setSize(450, 500);
+        registerDialog.setLocationRelativeTo(null);
+        registerDialog.setBackground(BG_COLOR);
+
+        JPanel registerPanel = new JPanel(new GridBagLayout());
+        registerPanel.setBackground(BG_COLOR);
+        registerPanel.setBorder(new EmptyBorder(25, 25, 25, 25));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(12, 12, 12, 12);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel titleLabel = new JLabel("CREATE ACCOUNT");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        titleLabel.setForeground(HEADER_COLOR);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        registerPanel.add(titleLabel, gbc);
+
+        gbc.gridwidth = 1;
+
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        JLabel userLabel = new JLabel("Username:");
+        userLabel.setForeground(TEXT_COLOR);
+        userLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        registerPanel.add(userLabel, gbc);
+
+        gbc.gridx = 1;
+        JTextField usernameField = new JTextField(15);
+        usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        usernameField.setBackground(Color.WHITE);
+        usernameField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 210, 190)),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        registerPanel.add(usernameField, gbc);
+
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        JLabel passLabel = new JLabel("Password:");
+        passLabel.setForeground(TEXT_COLOR);
+        passLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        registerPanel.add(passLabel, gbc);
+
+        gbc.gridx = 1;
+        JPasswordField passwordField = new JPasswordField(15);
+        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        passwordField.setBackground(Color.WHITE);
+        passwordField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 210, 190)),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        registerPanel.add(passwordField, gbc);
+
+        gbc.gridy = 3;
+        gbc.gridx = 0;
+        JLabel confirmLabel = new JLabel("Confirm:");
+        confirmLabel.setForeground(TEXT_COLOR);
+        confirmLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        registerPanel.add(confirmLabel, gbc);
+
+        gbc.gridx = 1;
+        JPasswordField confirmField = new JPasswordField(15);
+        confirmField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        confirmField.setBackground(Color.WHITE);
+        confirmField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 210, 190)),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        registerPanel.add(confirmField, gbc);
+
+        gbc.gridy = 4;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+
+        JButton registerBtn = new JButton("REGISTER");
+        registerBtn.setBackground(BUTTON_COLOR);
+        registerBtn.setForeground(Color.WHITE);
+        registerBtn.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        registerBtn.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
+        registerBtn.setFocusPainted(false);
+        registerBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        registerBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                registerBtn.setBackground(BUTTON_HOVER);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                registerBtn.setBackground(BUTTON_COLOR);
+            }
+        });
+
+        final boolean[] success = {false};
+
+        registerBtn.addActionListener(e -> {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+            String confirm = new String(confirmField.getPassword());
+
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(registerDialog,
+                        "Fill all fields!",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!password.equals(confirm)) {
+                JOptionPane.showMessageDialog(registerDialog,
+                        "Passwords do not match!",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (authService.register(username, password)) {
+                authService.login(username, password);
+                success[0] = true;
+                JOptionPane.showMessageDialog(registerDialog,
+                        "Registration successful!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                registerDialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(registerDialog,
+                        "User already exists!",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        registerPanel.add(registerBtn, gbc);
+
+        registerDialog.add(registerPanel);
+        registerDialog.setVisible(true);
+
+        return success[0];
+    }
+
     private boolean showLoginDialog() {
         JDialog loginDialog = new JDialog(this, "Login", true);
-        loginDialog.setSize(450, 300);
+        loginDialog.setSize(450, 500);
         loginDialog.setLocationRelativeTo(null);
         loginDialog.setBackground(BG_COLOR);
 
@@ -77,11 +221,12 @@ public class Main extends JFrame {
         loginPanel.add(titleLabel, gbc);
 
         gbc.gridwidth = 1;
+
         gbc.gridy = 1;
         gbc.gridx = 0;
         JLabel userLabel = new JLabel("Username:");
         userLabel.setForeground(TEXT_COLOR);
-        userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        userLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         loginPanel.add(userLabel, gbc);
 
         gbc.gridx = 1;
@@ -98,7 +243,7 @@ public class Main extends JFrame {
         gbc.gridx = 0;
         JLabel passLabel = new JLabel("Password:");
         passLabel.setForeground(TEXT_COLOR);
-        passLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        passLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         loginPanel.add(passLabel, gbc);
 
         gbc.gridx = 1;
@@ -114,6 +259,7 @@ public class Main extends JFrame {
         gbc.gridy = 3;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
+
         JButton loginBtn = new JButton("LOGIN");
         loginBtn.setBackground(BUTTON_COLOR);
         loginBtn.setForeground(Color.WHITE);
@@ -136,12 +282,13 @@ public class Main extends JFrame {
         loginBtn.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
+
             if (authService.login(username, password)) {
                 success[0] = true;
                 loginDialog.dispose();
             } else {
                 JOptionPane.showMessageDialog(loginDialog,
-                        "Invalid credentials!\n\nAvailable:\nTeacher: teacher/teacher\nStudent: student/student\n\nOther users: professor, alice, bob, charlie\n(password = username)",
+                        "Invalid credentials!",
                         "Login Failed",
                         JOptionPane.ERROR_MESSAGE);
             }
@@ -150,7 +297,39 @@ public class Main extends JFrame {
         loginPanel.add(loginBtn, gbc);
 
         gbc.gridy = 4;
-        JLabel infoLabel = new JLabel("Teacher: teacher/teacher | Student: student/student");
+
+        JButton registerBtn = new JButton("CREATE ACCOUNT");
+        registerBtn.setBackground(new Color(161, 218, 95));
+        registerBtn.setForeground(Color.WHITE);
+        registerBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        registerBtn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        registerBtn.setFocusPainted(false);
+        registerBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        registerBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                registerBtn.setBackground(new Color(177, 225, 141));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                registerBtn.setBackground(new Color(161, 218, 95));
+            }
+        });
+
+        registerBtn.addActionListener(e -> {
+            loginDialog.dispose();
+
+            boolean registered = showRegisterDialog();
+            if (registered) {
+                success[0] = true;
+            } else {
+                showLoginDialog();
+            }
+        });
+
+        loginPanel.add(registerBtn, gbc);
+
+        gbc.gridy = 5;
+        JLabel infoLabel = new JLabel("Student: student/student");
         infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         infoLabel.setForeground(new Color(150, 160, 140));
         infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -158,6 +337,7 @@ public class Main extends JFrame {
 
         loginDialog.add(loginPanel);
         loginDialog.setVisible(true);
+
         return success[0];
     }
 

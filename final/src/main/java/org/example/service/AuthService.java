@@ -2,25 +2,28 @@ package org.example.service;
 
 import org.example.Tables.Role;
 import org.example.Tables.User;
+import org.example.repository.StudentRepository;
+import org.example.repository.StudentRepositoryImpl;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AuthService {
-    private Map<String, User> users = new HashMap<>();
     private User currentUser;
+    private static final StudentRepository repository = new StudentRepositoryImpl();
 
-    public AuthService() {
-        addUser("teacher", "teacher", Role.TEACHER);
-        addUser("professor", "professor", Role.TEACHER);
-
-        addUser("student", "student", Role.STUDENT);
-        addUser("alice", "alice", Role.STUDENT);
-        addUser("bob", "bob", Role.STUDENT);
-        addUser("charlie", "charlie", Role.STUDENT);
-    }
-
-    private void addUser(String username, String password, Role role) {
-        users.put(username, new User(username, hashPassword(password), role));
+    public boolean register(String username, String password) {
+        if (username.isBlank()) {
+            System.out.println("Username cannot be empty");
+            return false;
+        }
+        else if (password.isBlank() || password.length() < 7) {
+            System.out.println("Password cannot be empty or cannot be shorter than 7");
+            return false;
+        }
+        User user = new User(username, hashPassword(password));
+        return repository.register(user);
     }
 
     private String hashPassword(String password) {
@@ -38,11 +41,17 @@ public class AuthService {
     }
 
     public boolean login(String username, String password) {
-        User user = users.get(username);
-        if (user != null && user.getPasswordHash().equals(hashPassword(password))) {
-            currentUser = user;
+        User user = repository.login(username, password);
+        if (username.equals("student") && password.equals("student")) {
+            currentUser = new User("student");
             return true;
         }
+        else if (user != null && user.getPasswordHash().equals(hashPassword(password))) {
+            currentUser = user;
+            currentUser.setRole(Role.TEACHER);
+            return true;
+        }
+        System.out.println(user);
         return false;
     }
 

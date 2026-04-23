@@ -9,10 +9,24 @@ public class User {
     public User() {
     }
 
-    public User(String username, String passwordHash, Role role) {
+    public User(String roleS) {
+        if (roleS.equals("student")) {
+            this.role = Role.STUDENT;
+        }
+    }
+    public User(String username, String passwordHash) {
         this.username = username;
         this.passwordHash = passwordHash;
-        this.role = role;
+    }
+
+
+    public User(Long id, String username, String passwordHash, String roleS) {
+        this.id = id;
+        this.username = username;
+        this.passwordHash = passwordHash;
+        if (roleS.equals("TEACHER")) {
+            this.role = Role.TEACHER;
+        }
     }
 
     public Long getId() {
@@ -52,6 +66,7 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
+                ", password=" + passwordHash +
                 ", role=" + role +
                 '}';
     }
